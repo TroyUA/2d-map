@@ -1,8 +1,8 @@
 import { Camera } from './camera.js'
 import { Map } from './map.js'
 
-const GAME_WIDTH = 768
-const GAME_HEIGHT = 768
+const GAME_WIDTH = 512
+const GAME_HEIGHT = 512
 
 class Game {
   constructor() {
@@ -35,29 +35,37 @@ class Game {
     this.camera.move(deltaTime, speedX, speedY)
   }
 
-  render(ctx) {
-    for (let row = 0; row <= this.map.rows; row++)
-      for (let col = 0; col <= this.map.cols; col++) {
-        const tile = 18
+  drawLayer(layer, ctx) {
+    const startCol = Math.floor(this.camera.x / this.map.tileSize)
+    const endCol = startCol + this.camera.width / this.map.tileSize
+    const startRow = Math.floor(this.camera.y / this.map.tileSize)
+    const endRow = startRow + this.camera.height / this.map.tileSize
+    const offsetX = -this.camera.x + startCol * this.map.tileSize
+    const offsetY = -this.camera.y + startRow * this.map.tileSize
+
+    for (let row = startRow; row <= endRow; row++)
+      for (let col = startCol; col <= endCol; col++) {
+        const tile = this.map.getTile(layer, col, row)
+        const x = (col - startCol) * this.map.tileSize + offsetX
+        const y = (row - startRow) * this.map.tileSize + offsetY
+
         ctx.drawImage(
           this.map.image,
-          0,
-          0,
+          ((tile - 1) * this.map.imageTile) % this.map.image.width,
+          Math.floor((tile - 1) / this.map.imageCols) * this.map.imageTile,
           this.map.imageTile,
           this.map.imageTile,
-          0,
-          0,
-          GAME_WIDTH,
-          GAME_HEIGHT
-        )
-
-        ctx.strokeRect(
-          col * this.map.tileSize,
-          row * this.map.tileSize,
+          Math.round(x),
+          Math.round(y),
           this.map.tileSize,
           this.map.tileSize
         )
       }
+  }
+
+  render(ctx) {
+    this.drawLayer(0, ctx)
+    this.drawLayer(1, ctx)
   }
 }
 
@@ -66,6 +74,7 @@ window.addEventListener('load', () => {
   const ctx = canvas.getContext('2d')
   canvas.width = GAME_WIDTH
   canvas.height = GAME_HEIGHT
+  ctx.imageSmoothingEnabled = false
 
   const game = new Game()
 

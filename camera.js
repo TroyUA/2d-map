@@ -1,12 +1,12 @@
 export class Camera {
   constructor(map, widht, height) {
     this.map = map
-    this.widht = widht
+    this.width = widht
     this.height = height
-    this.x = 128
-    this.y = 128
-    this.maxX = this.map.image.width - this.widht
-    this.maxY = this.map.image.height - this.height
+    this.x = 0
+    this.y = 0
+    this.maxX = map.cols * map.tileSize - this.width
+    this.maxY = map.rows * map.tileSize - this.height
     this.speed = 256
   }
 
